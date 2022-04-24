@@ -1,7 +1,7 @@
 use crate::task::JPollResult;
 use ::jni::{
     errors::{Error, Result},
-    objects::{GlobalRef, JMethodID, JObject},
+    objects::{GlobalRef, JMethodID, JObject, JClass},
     signature::JavaType,
     JNIEnv, JavaVM,
 };
@@ -38,10 +38,8 @@ impl<'a: 'b, 'b> JFuture<'a, 'b> {
     /// * `env` - Java environment to use.
     /// * `obj` - Object to wrap.
     pub fn from_env(env: &'b JNIEnv<'a>, obj: JObject<'a>) -> Result<Self> {
-        let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/future/Future")?);
-
         let poll = env.get_method_id(
-            &class,
+            JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/future/Future").unwrap().as_obj()),
             "poll",
             "(Lio/github/gedgygedgy/rust/task/Waker;)Lio/github/gedgygedgy/rust/task/PollResult;",
         )?;

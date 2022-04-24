@@ -42,6 +42,7 @@
 use ::jni::{errors::Result, JNIEnv};
 
 pub mod arrays;
+pub mod classcache;
 pub mod exceptions;
 pub mod future;
 pub mod ops;

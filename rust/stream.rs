@@ -1,7 +1,7 @@
 use crate::task::JPollResult;
 use ::jni::{
     errors::{Error, Result},
-    objects::{GlobalRef, JMethodID, JObject},
+    objects::{GlobalRef, JMethodID, JObject, JClass},
     signature::JavaType,
     JNIEnv, JavaVM,
 };
@@ -38,10 +38,8 @@ impl<'a: 'b, 'b> JStream<'a, 'b> {
     /// * `env` - Java environment to use.
     /// * `obj` - Object to wrap.
     pub fn from_env(env: &'b JNIEnv<'a>, obj: JObject<'a>) -> Result<Self> {
-        let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/stream/Stream")?);
-
         let poll_next = env.get_method_id(
-            &class,
+            JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/stream/Stream").unwrap().as_obj()),
             "pollNext",
             "(Lio/github/gedgygedgy/rust/task/Waker;)Lio/github/gedgygedgy/rust/task/PollResult;",
         )?;
@@ -173,9 +171,10 @@ struct JStreamPoll<'a: 'b, 'b> {
 
 impl<'a: 'b, 'b> JStreamPoll<'a, 'b> {
     pub fn from_env(env: &'b JNIEnv<'a>, obj: JObject<'a>) -> Result<Self> {
-        let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/stream/StreamPoll")?);
-
-        let get = env.get_method_id(&class, "get", "()Ljava/lang/Object;")?;
+        let get = env.get_method_id(
+            JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/stream/StreamPoll").unwrap().as_obj()),
+            "get", 
+            "()Ljava/lang/Object;")?;
         Ok(Self {
             internal: obj,
             get,
