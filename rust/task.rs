@@ -1,6 +1,6 @@
 use ::jni::{
     errors::Result,
-    objects::{JMethodID, JObject},
+    objects::{JMethodID, JObject, JClass},
     signature::JavaType,
     JNIEnv,
 };
@@ -19,10 +19,8 @@ use std::task::Waker;
 pub fn waker<'a: 'b, 'b>(env: &'b JNIEnv<'a>, waker: Waker) -> Result<JObject<'a>> {
     let runnable = crate::ops::fn_once_runnable(env, |_e, _o| waker.wake())?;
 
-    let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/task/Waker")?);
-
     let obj = env.new_object(
-        &class,
+        JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/task/Waker").unwrap().as_obj()),
         "(Lio/github/gedgygedgy/rust/ops/FnRunnable;)V",
         &[runnable.into()],
     )?;
@@ -51,9 +49,10 @@ impl<'a: 'b, 'b> JPollResult<'a, 'b> {
     /// * `env` - Java environment to use.
     /// * `obj` - Object to wrap.
     pub fn from_env(env: &'b JNIEnv<'a>, obj: JObject<'a>) -> Result<Self> {
-        let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/task/PollResult")?);
-
-        let get = env.get_method_id(&class, "get", "()Ljava/lang/Object;")?;
+        let get = env.get_method_id(
+            JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/task/PollResult").unwrap().as_obj()), 
+            "get", 
+            "()Ljava/lang/Object;")?;
         Ok(Self {
             internal: obj,
             get,

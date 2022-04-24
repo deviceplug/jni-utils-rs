@@ -1,4 +1,4 @@
-use ::jni::{errors::Result, objects::JObject, JNIEnv};
+use ::jni::{errors::Result, objects::{JObject, JClass}, JNIEnv};
 use std::sync::{Arc, Mutex};
 
 macro_rules! define_fn_adapter {
@@ -27,9 +27,8 @@ macro_rules! define_fn_adapter {
             local: bool,
         ) -> Result<JObject<'a>> {
             let adapter = env.auto_local(fn_once_adapter(env, $closure, local)?);
-            let class = env.auto_local(env.find_class($ic)?);
             env.new_object(
-                &class,
+                JClass::from(crate::classcache::get_class($ic).unwrap().as_obj()),
                 "(Lio/github/gedgygedgy/rust/ops/FnAdapter;)V",
                 &[(&adapter).into()],
             )
@@ -80,9 +79,8 @@ macro_rules! define_fn_adapter {
             local: bool,
         ) -> Result<JObject<'a>> {
             let adapter = env.auto_local(fn_mut_adapter(env, $closure, local)?);
-            let class = env.auto_local(env.find_class($ic)?);
             env.new_object(
-                &class,
+                JClass::from(crate::classcache::get_class($ic).unwrap().as_obj()),
                 "(Lio/github/gedgygedgy/rust/ops/FnAdapter;)V",
                 &[(&adapter).into()],
             )
@@ -138,9 +136,8 @@ macro_rules! define_fn_adapter {
             local: bool,
         ) -> Result<JObject<'a>> {
             let adapter = env.auto_local(fn_adapter(env, $closure, local)?);
-            let class = env.auto_local(env.find_class($ic)?);
             env.new_object(
-                &class,
+                JClass::from(crate::classcache::get_class($ic).unwrap().as_obj()),
                 "(Lio/github/gedgygedgy/rust/ops/FnAdapter;)V",
                 &[(&adapter).into()],
             )
@@ -345,9 +342,11 @@ fn fn_adapter<'a: 'b, 'b>(
         ) -> JObject<'c>,
     > = Arc::from(f);
 
-    let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/ops/FnAdapter")?);
-
-    let obj = env.new_object(&class, "(Z)V", &[local.into()])?;
+    let obj = env.new_object(
+        JClass::from(crate::classcache::get_class("io/github/gedgygedgy/rust/ops/FnAdapter").unwrap().as_obj()),
+        "(Z)V", 
+        &[local.into()]
+    )?;
     env.set_rust_field::<_, _, FnWrapper>(obj, "data", SendSyncWrapper(arc))?;
     Ok(obj)
 }
@@ -382,7 +381,16 @@ pub(crate) mod jni {
 
     pub fn init(env: &JNIEnv) -> Result<()> {
         use std::ffi::c_void;
-
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/future/Future").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/future/FutureException").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/ops/FnAdapter").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/stream/Stream").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/stream/StreamPoll").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/task/Waker").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/task/PollResult").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/ops/FnRunnableImpl").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/ops/FnBiFunctionImpl").unwrap();
+        crate::classcache::find_add_class(env, "io/github/gedgygedgy/rust/ops/FnFunctionImpl").unwrap();
         let class = env.auto_local(env.find_class("io/github/gedgygedgy/rust/ops/FnAdapter")?);
         env.register_native_methods(
             &class,
