@@ -11,6 +11,7 @@ java {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java
             pom {
                 name = 'Extra Utilities for JNI in Rust'
                 description = 'This is the Java support library for jni-utils.'
