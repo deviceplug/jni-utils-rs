@@ -66,3 +66,9 @@ dependencies {
     implementation 'io.github.gedgygedgy.rust:jni-utils:0.1.0'
 }
 ```
+
+## Using with Tokio
+
+This library should work with the Tokio async runtime without changes. However, when adding any new
+features to this crate, they will need to be included in the class cache, as creating new threads in
+tokio seemed to have an issue with class caches not being updated.
