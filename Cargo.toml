@@ -6,6 +6,9 @@ edition = "2021"
 license = "BSD-3-Clause"
 description = "Extra Utilities for JNI in Rust"
 readme = "README.md"
+repository = "https://github.com/deviceplug/jni-utils-rs"
+homepage = "https://github.com/deviceplug/jni-utils-rs"
+
 
 [lib]
 path = "rust/lib.rs"
