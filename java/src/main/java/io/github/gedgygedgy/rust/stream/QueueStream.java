@@ -64,7 +64,11 @@ public class QueueStream<T> implements Stream<T> {
      * @param item Item to add to the queue.
      */
     public void add(T item) {
-        this.doEvent(() -> this.result.add(item));
+        this.doEvent(() -> {
+            synchronized (this.lock) {
+                this.result.add(item);
+            }
+        });
     }
 
     /**
