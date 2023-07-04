@@ -1,6 +1,6 @@
 [package]
 name = "jni-utils"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Gedgy Gedgy <gedgygedgy@protonmail.com>", "Kyle Machulis <kyle@nonpolynomial.com>"]
 edition = "2021"
 license = "BSD-3-Clause"
